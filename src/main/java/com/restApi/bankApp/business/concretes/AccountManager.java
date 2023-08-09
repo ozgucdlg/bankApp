@@ -3,10 +3,15 @@ package com.restApi.bankApp.business.concretes;
 import com.restApi.bankApp.business.abstracts.AccountService;
 import com.restApi.bankApp.dataAccess.AccountRepository;
 import com.restApi.bankApp.entities.Account;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
+@Service
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccountManager implements AccountService {
 
     @Autowired
