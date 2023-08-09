@@ -27,7 +27,12 @@ public class AccountController {
     @PostMapping("/{id}/deposit")
     public Account deposit(@PathVariable int id, @RequestBody Map<String, Double> request){
         Double amount = request.get("amount");
-        return accountService.withdraw(id, amount);
+        return accountService.deposit(id, amount);
     }
 
+    @PostMapping("/{id}/withdraw")
+    public Account withdraw(@PathVariable int id, @RequestBody Map<String, Double> request) {
+        Double amount = request.get("amount");
+        return accountService.withdraw(id, amount);
+    }
 }
