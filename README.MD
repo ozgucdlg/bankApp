@@ -1,15 +1,15 @@
 # Rest API Bank application 
 
-***
+
 ## Introduction
-Created a REST APIs for a simple Banking application using Spring Boot, 
+Created a REST API for a simple Banking application using Spring Boot, 
 Spring Data JPA (Hibernate) and PostgreSQL database.
-Simple version of Banking App with basic functionalities: 
+A simple version of Banking App with basic functionalities: 
 - Creating a bank account, 
 - Fetching account details, 
 - Deposit/withdrawal.
 
-## Technoogies
+## Technologies
 - Java 17,
 - Maven,
 - Springboot,
@@ -26,10 +26,7 @@ Simple version of Banking App with basic functionalities:
 
 ## Architecture
 
-![Architecture](C:\Users\ozguc\eclipse-workspace\bankApp\src\assets\images\schema.png)
-
-
-
+![Architecture](https://github.com/ozgucdlg/bankApp/blob/master/schema.png)
 
 ## Scripts
 - Build the project:
