@@ -1,7 +1,6 @@
 package com.restApi.bankApp.business.abstracts;
 
 import com.restApi.bankApp.entities.Account;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 

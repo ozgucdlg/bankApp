@@ -1,0 +1,19 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bankApp
+    ports:
+      - "5432:5432"
+
+  bank:
+    build:
+      context: ./bank  # Spring Boot uygulamanızın Dockerfile'ın bulunduğu dizini belirtin
+      dockerfile: Dockerfile  # Kullanılacak Dockerfile'ın adını belirtin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres

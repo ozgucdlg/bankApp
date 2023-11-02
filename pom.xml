@@ -64,6 +64,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>spring-boot-bankapp-docker</finalName>
 	</build>
 
 </project>
