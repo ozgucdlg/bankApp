@@ -1,6 +1,7 @@
 package com.restApi.bankApp.business.abstracts;
 
 import com.restApi.bankApp.entities.Auth;
+import java.util.List;
 import java.util.Optional;
 
 public interface AuthService {
@@ -13,4 +14,5 @@ public interface AuthService {
     Optional<Auth> getAuthByEmail(String email);
     boolean isUsernameAvailable(String username);
     boolean isEmailAvailable(String email);
+    List<Auth> getAllUsers();
 } 

@@ -1,9 +1,11 @@
-package com.restApi.bankApp.api.controllers;
+package com.restApi.bankApp.controllers;
 
 import com.restApi.bankApp.business.abstracts.NotificationService;
 import com.restApi.bankApp.entities.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,11 +32,23 @@ public class NotificationController {
 
     @GetMapping
     public ResponseEntity<List<Notification>> getAllNotifications() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        
+        if (!username.equals("ADMIN")) {
+            return ResponseEntity.status(403).body(null);
+        }
         return ResponseEntity.ok(notificationService.getAllNotifications());
     }
 
     @GetMapping("/recipient/{recipient}")
     public ResponseEntity<List<Notification>> getNotificationsByRecipient(@PathVariable String recipient) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        
+        if (!username.equals(recipient)) {
+            return ResponseEntity.status(403).body(null);
+        }
         return ResponseEntity.ok(notificationService.getNotificationsByRecipient(recipient));
     }
 } 

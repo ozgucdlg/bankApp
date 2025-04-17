@@ -1,13 +1,17 @@
 package com.restApi.bankApp.business.concretes;
 
 import com.restApi.bankApp.business.abstracts.AuthService;
+import com.restApi.bankApp.business.abstracts.NotificationService;
+import com.restApi.bankApp.business.abstracts.AccountService;
 import com.restApi.bankApp.dataAccess.AuthRepository;
 import com.restApi.bankApp.entities.Auth;
+import com.restApi.bankApp.entities.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,6 +19,12 @@ public class AuthManager implements AuthService {
 
     @Autowired
     private AuthRepository authRepository;
+
+    @Autowired
+    private AccountService accountService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -28,6 +38,14 @@ public class AuthManager implements AuthService {
             throw new RuntimeException("Email is already registered");
         }
 
+        // Create account if not provided
+        if (auth.getAccount() == null) {
+            Account newAccount = new Account();
+            newAccount.setAccountHolderName(auth.getUsername());
+            newAccount.setBalance(0.0);
+            auth.setAccount(accountService.createAccount(newAccount, this.getClass().getName()));
+        }
+
         // Encode password before saving
         auth.setPassword(passwordEncoder.encode(auth.getPassword()));
         
@@ -36,7 +54,23 @@ public class AuthManager implements AuthService {
             auth.setRole("USER");
         }
 
-        return authRepository.save(auth);
+        // Save the auth entity
+        Auth savedAuth = authRepository.save(auth);
+
+        // Send welcome notification
+        String welcomeMessage = String.format(
+            "Welcome %s! Your bank account has been created successfully. Account ID: %d",
+            auth.getUsername(),
+            auth.getAccount().getId()
+        );
+        
+        notificationService.sendNotification(
+            auth.getEmail(),
+            "Welcome to Our Bank",
+            welcomeMessage
+        );
+
+        return savedAuth;
     }
 
     @Override
@@ -108,5 +142,10 @@ public class AuthManager implements AuthService {
     @Override
     public boolean isEmailAvailable(String email) {
         return !authRepository.existsByEmail(email);
+    }
+
+    @Override
+    public List<Auth> getAllUsers() {
+        return authRepository.findAll();
     }
 } 
