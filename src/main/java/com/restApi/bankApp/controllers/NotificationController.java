@@ -22,10 +22,13 @@ public class NotificationController {
             @RequestParam String recipient,
             @RequestParam String subject,
             @RequestParam String content) {
+        System.out.println("Received notification request - Recipient: " + recipient); // Debug log
         try {
             notificationService.sendNotification(recipient, subject, content);
+            System.out.println("Notification sent successfully"); // Debug log
             return ResponseEntity.ok("Notification sent successfully");
         } catch (Exception e) {
+            System.out.println("Failed to send notification: " + e.getMessage()); // Debug log
             return ResponseEntity.badRequest().body("Failed to send notification: " + e.getMessage());
         }
     }

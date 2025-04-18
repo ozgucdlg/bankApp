@@ -20,16 +20,6 @@ public class AuthController {
 
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String role = auth.getAuthorities().stream()
-                .findFirst()
-                .map(Object::toString)
-                .orElse("");
-
-        if (!role.equals("ADMIN")) {
-            return ResponseEntity.status(403).body("Access denied: Admin role required");
-        }
-
         List<Auth> users = authService.getAllUsers();
         return ResponseEntity.ok(users);
     }
@@ -46,10 +36,13 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
+        System.out.println("Login attempt - Username: " + username);  // Debug log
         Optional<Auth> auth = authService.login(username, password);
         if (auth.isPresent()) {
+            System.out.println("Login successful for user: " + username);  // Debug log
             return ResponseEntity.ok(auth.get());
         }
+        System.out.println("Login failed for user: " + username);  // Debug log
         return ResponseEntity.badRequest().body("Invalid credentials");
     }
 
