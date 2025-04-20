@@ -1,0 +1,32 @@
+<div class="notifications-container">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Notifications</h5>
+      <button class="btn btn-sm btn-light" (click)="refreshNotifications()">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="notification-list" *ngIf="notifications.length > 0">
+        <div class="notification-item p-3 border-bottom" *ngFor="let notification of notifications">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h6 class="mb-1">{{ notification.subject }}</h6>
+              <p class="mb-1">{{ notification.content }}</p>
+              <small class="text-muted">{{ formatDate(notification.sentAt) }}</small>
+            </div>
+            <span [class]="getStatusClass(notification.status)">
+              <i class="fas" [class.fa-check-circle]="notification.status === 'SENT'"
+                 [class.fa-times-circle]="notification.status === 'FAILED'"
+                 [class.fa-clock]="notification.status === 'PENDING'"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="text-center py-4" *ngIf="notifications.length === 0">
+        <i class="fas fa-bell-slash fa-2x text-muted mb-3"></i>
+        <p class="text-muted mb-0">No notifications</p>
+      </div>
+    </div>
+  </div>
+</div> 

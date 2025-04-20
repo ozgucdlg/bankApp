@@ -1,0 +1,76 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'styles/variables';
+
+/* Import Bootstrap */
+@import '../node_modules/bootstrap/scss/bootstrap';
+
+/* Global Styles */
+body {
+  font-family: $font-family-base;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* Custom Card Styles */
+.card {
+  border: none;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $box-shadow;
+  }
+}
+
+/* Custom Button Styles */
+.btn {
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  
+  &.btn-primary {
+    background: linear-gradient(to right, darken($primary, 10%), $primary);
+    border: none;
+    
+    &:hover {
+      background: linear-gradient(to right, darken($primary, 15%), darken($primary, 5%));
+    }
+  }
+}
+
+/* Custom Input Styles */
+.form-control {
+  border-radius: $border-radius;
+  border: 1px solid #e0e0e0;
+  padding: 0.75rem 1rem;
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    border-color: $primary;
+  }
+}
+
+/* Custom Alert Styles */
+.alert {
+  border: none;
+  border-radius: $border-radius;
+  padding: 1rem;
+  
+  &.alert-success {
+    background-color: rgba($success, 0.1);
+    color: darken($success, 10%);
+  }
+  
+  &.alert-danger {
+    background-color: rgba($danger, 0.1);
+    color: darken($danger, 10%);
+  }
+}
+
+/* Loading Spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Add Font Awesome */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');

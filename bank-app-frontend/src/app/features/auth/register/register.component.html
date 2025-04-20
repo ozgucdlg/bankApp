@@ -1,0 +1,69 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2>Register</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="form-control"
+          [class.is-invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+        />
+        <div class="invalid-feedback" *ngIf="registerForm.get('username')?.errors?.['required'] && registerForm.get('username')?.touched">
+          Username is required
+        </div>
+        <div class="invalid-feedback" *ngIf="registerForm.get('username')?.errors?.['minlength'] && registerForm.get('username')?.touched">
+          Username must be at least 3 characters
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+        />
+        <div class="invalid-feedback" *ngIf="registerForm.get('email')?.errors?.['required'] && registerForm.get('email')?.touched">
+          Email is required
+        </div>
+        <div class="invalid-feedback" *ngIf="registerForm.get('email')?.errors?.['email'] && registerForm.get('email')?.touched">
+          Please enter a valid email
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+        />
+        <div class="invalid-feedback" *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched">
+          Password is required
+        </div>
+        <div class="invalid-feedback" *ngIf="registerForm.get('password')?.errors?.['minlength'] && registerForm.get('password')?.touched">
+          Password must be at least 6 characters
+        </div>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <button type="submit" [disabled]="registerForm.invalid" class="btn btn-primary">
+        Register
+      </button>
+
+      <div class="login-link">
+        Already have an account? <a routerLink="/login">Login here</a>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+.notifications-container {
+  padding: 1rem;
+}
+
+.notification-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  &:last-child {
+    border-bottom: none !important;
+  }
+}
+
+.card-header {
+  .btn {
+    padding: 0.25rem 0.5rem;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.9);
+    }
+  }
+} 

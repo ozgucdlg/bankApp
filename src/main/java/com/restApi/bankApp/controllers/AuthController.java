@@ -8,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,14 +37,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
-        System.out.println("Login attempt - Username: " + username);  // Debug log
-        Optional<Auth> auth = authService.login(username, password);
-        if (auth.isPresent()) {
-            System.out.println("Login successful for user: " + username);  // Debug log
-            return ResponseEntity.ok(auth.get());
+    public ResponseEntity<?> login(@RequestBody Auth auth) {
+        System.out.println("Login attempt - Username: " + auth.getUsername());  // Debug log
+        Optional<Auth> authResult = authService.login(auth.getUsername(), auth.getPassword());
+        if (authResult.isPresent()) {
+            System.out.println("Login successful for user: " + auth.getUsername());  // Debug log
+            return ResponseEntity.ok(authResult.get());
         }
-        System.out.println("Login failed for user: " + username);  // Debug log
+        System.out.println("Login failed for user: " + auth.getUsername());  // Debug log
         return ResponseEntity.badRequest().body("Invalid credentials");
     }
 
@@ -70,6 +72,24 @@ public class AuthController {
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        try {
+            // Clear security context
+            SecurityContextHolder.clearContext();
+            
+            // Invalidate session if it exists
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+            
+            return ResponseEntity.ok().body("Logged out successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error during logout: " + e.getMessage());
         }
     }
 } 

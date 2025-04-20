@@ -1,0 +1,217 @@
+<div class="container-fluid py-4">
+  <!-- Loading Spinner -->
+  <div class="d-flex flex-column align-items-center justify-content-center min-vh-100" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading your account...</p>
+  </div>
+
+  <div class="container" *ngIf="!loading && account">
+    <!-- Account Overview -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card bg-primary text-white shadow-lg rounded-4 position-relative overflow-hidden">
+          <div class="card-header">
+            <h2>Account Overview</h2>
+            <div>
+              <button type="button" class="btn btn-outline-light" (click)="logout()" id="logoutBtn">
+                <i class="fas fa-sign-out-alt me-2"></i>
+                Logout
+              </button>
+              <a href="/login" class="btn btn-outline-light ms-2">
+                <i class="fas fa-door-open me-2"></i>
+                Emergency Exit
+              </a>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <div class="row">
+              <div class="col-md-6">
+                <h2 class="h4 mb-4">Account Overview</h2>
+                <div class="balance-info mb-4">
+                  <h3 class="h6 text-white-50">Current Balance</h3>
+                  <h1 class="display-4 fw-bold mb-0">{{ formatCurrency(account.balance) }}</h1>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-light" (click)="showQuickTransfer()">
+                    <i class="fas fa-exchange-alt me-2"></i>Quick Transfer
+                  </button>
+                  <button class="btn btn-light" (click)="downloadStatement()">
+                    <i class="fas fa-download me-2"></i>Download Statement
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="account-details mt-4 mt-md-0">
+                  <div class="mb-3">
+                    <p class="mb-1"><strong>Account Holder:</strong> {{ account.accountHolderName }}</p>
+                    <p class="mb-0"><strong>Account ID:</strong> {{ account.id }}</p>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-6">
+                      <div class="p-3 bg-white bg-opacity-10 rounded-3">
+                        <h6 class="text-white-50 mb-2">Monthly Income</h6>
+                        <span class="h4 d-block text-success">+{{ formatCurrency(getMonthlyIncome()) }}</span>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="p-3 bg-white bg-opacity-10 rounded-3">
+                        <h6 class="text-white-50 mb-2">Monthly Spending</h6>
+                        <span class="h4 d-block text-danger">-{{ formatCurrency(getMonthlySpending()) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="position-absolute top-0 end-0 p-4">
+            <i class="fas fa-wallet fa-3x text-white opacity-25"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Transfer Money -->
+      <div class="col-lg-5">
+        <div class="card shadow-sm rounded-4">
+          <div class="card-body p-4">
+            <h2 class="h4 mb-4">Transfer Money</h2>
+            <form [formGroup]="transferForm" (ngSubmit)="onTransfer()">
+              <div class="mb-3">
+                <label for="toAccountId" class="form-label">Recipient Account ID</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    id="toAccountId"
+                    formControlName="toAccountId"
+                    class="form-control"
+                    [class.is-invalid]="transferForm.get('toAccountId')?.invalid && transferForm.get('toAccountId')?.touched"
+                  />
+                  <button type="button" class="btn btn-outline-secondary" (click)="showRecentRecipients()">
+                    <i class="fas fa-history"></i>
+                  </button>
+                </div>
+                <div class="invalid-feedback" *ngIf="transferForm.get('toAccountId')?.errors?.['required'] && transferForm.get('toAccountId')?.touched">
+                  Account ID is required
+                </div>
+                <div class="invalid-feedback" *ngIf="transferForm.get('toAccountId')?.errors?.['pattern'] && transferForm.get('toAccountId')?.touched">
+                  Please enter a valid account ID
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="amount" class="form-label">Amount</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input
+                    type="number"
+                    id="amount"
+                    formControlName="amount"
+                    class="form-control"
+                    [class.is-invalid]="transferForm.get('amount')?.invalid && transferForm.get('amount')?.touched"
+                    step="0.01"
+                    min="0.01"
+                  />
+                </div>
+                <div class="invalid-feedback" *ngIf="transferForm.get('amount')?.errors?.['required'] && transferForm.get('amount')?.touched">
+                  Amount is required
+                </div>
+                <div class="invalid-feedback" *ngIf="transferForm.get('amount')?.errors?.['min'] && transferForm.get('amount')?.touched">
+                  Amount must be greater than 0
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea
+                  id="description"
+                  formControlName="description"
+                  class="form-control"
+                  [class.is-invalid]="transferForm.get('description')?.invalid && transferForm.get('description')?.touched"
+                  rows="2"
+                ></textarea>
+                <div class="invalid-feedback" *ngIf="transferForm.get('description')?.errors?.['required'] && transferForm.get('description')?.touched">
+                  Description is required
+                </div>
+              </div>
+
+              <div class="alert alert-danger d-flex align-items-center" *ngIf="error">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {{ error }}
+              </div>
+              <div class="alert alert-success d-flex align-items-center" *ngIf="success">
+                <i class="fas fa-check-circle me-2"></i>
+                {{ success }}
+              </div>
+
+              <button type="submit" [disabled]="transferForm.invalid || transferForm.pristine" class="btn btn-primary w-100">
+                <i class="fas fa-paper-plane me-2"></i>
+                Transfer Money
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="col-lg-7">
+        <div class="card shadow-sm rounded-4">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h2 class="h4 mb-0">Recent Transactions</h2>
+              <div class="btn-group">
+                <button class="btn btn-outline-primary btn-sm" [class.active]="transactionFilter === 'all'" (click)="filterTransactions('all')">
+                  All
+                </button>
+                <button class="btn btn-outline-primary btn-sm" [class.active]="transactionFilter === 'incoming'" (click)="filterTransactions('incoming')">
+                  Incoming
+                </button>
+                <button class="btn btn-outline-primary btn-sm" [class.active]="transactionFilter === 'outgoing'" (click)="filterTransactions('outgoing')">
+                  Outgoing
+                </button>
+              </div>
+            </div>
+
+            <div class="transaction-list" *ngIf="filteredTransactions.length > 0">
+              <div class="transaction-item p-3 border rounded-3 mb-3" *ngFor="let transaction of filteredTransactions">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="d-flex align-items-center">
+                      <i class="fas me-2" [class.fa-arrow-down]="transaction.toAccount.id === account.id" [class.fa-arrow-up]="transaction.fromAccount.id === account.id"
+                         [class.text-success]="transaction.toAccount.id === account.id" [class.text-danger]="transaction.fromAccount.id === account.id"></i>
+                      <span class="fw-medium">
+                        {{ transaction.fromAccount.id === account.id ? 'Sent to' : 'Received from' }}
+                        {{ transaction.fromAccount.id === account.id ? transaction.toAccount.accountHolderName : transaction.fromAccount.accountHolderName }}
+                      </span>
+                    </div>
+                    <p class="text-muted small mb-0 mt-1">{{ transaction.description }}</p>
+                  </div>
+                  <div class="text-end">
+                    <div class="fw-bold" [class.text-success]="transaction.toAccount.id === account.id" [class.text-danger]="transaction.fromAccount.id === account.id">
+                      {{ transaction.fromAccount.id === account.id ? '-' : '+' }}{{ formatCurrency(transaction.amount) }}
+                    </div>
+                    <small class="text-muted">{{ formatDate(transaction.timestamp) }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center py-5" *ngIf="filteredTransactions.length === 0">
+              <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+              <p class="text-muted mb-0">No transactions found</p>
+            </div>
+
+            <div class="text-center mt-3" *ngIf="filteredTransactions.length > 0">
+              <button class="btn btn-link text-decoration-none" (click)="loadMoreTransactions()">
+                <i class="fas fa-sync-alt me-2"></i>Load More
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
