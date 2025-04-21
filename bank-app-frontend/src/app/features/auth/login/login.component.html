@@ -1,6 +1,10 @@
 <div class="login-container">
   <div class="login-card">
-    <h2>Login</h2>
+    <div class="bank-logo">
+      <i class="fas fa-university fa-3x"></i>
+      <h1>Secure Bank</h1>
+    </div>
+    <h2>Login to Your Account</h2>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <div class="alert alert-success" *ngIf="success">
         <i class="fas fa-check-circle me-2"></i>
@@ -40,9 +44,10 @@
         </div>
       </div>
 
-      <button type="submit" [disabled]="loginForm.invalid" class="btn btn-primary">
-        <i class="fas fa-sign-in-alt me-2"></i>
-        Login
+      <button type="submit" [disabled]="loginForm.invalid || loading" class="btn btn-primary">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin me-2"></i>
+        <span *ngIf="!loading"><i class="fas fa-sign-in-alt me-2"></i>Login</span>
+        <span *ngIf="loading">Logging in...</span>
       </button>
 
       <div class="register-link">

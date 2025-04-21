@@ -46,4 +46,11 @@ public interface AccountService {
      * @throws RuntimeException if account is not found
      */
     Account withdraw(int id, double amount);
+    
+    /**
+     * Updates all accounts with a balance less than 5000 to have a balance of 5000.
+     * This operation is administrative and should only be available to admin users.
+     * @return The number of accounts that were updated
+     */
+    int updateAllBalancesTo5000();
 }

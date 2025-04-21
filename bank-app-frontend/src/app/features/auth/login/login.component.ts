@@ -12,6 +12,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   error: string = '';
   success: string = '';
+  loading: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -26,10 +27,22 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check if user was logged out
+    // Check query parameters
     this.route.queryParams.subscribe(params => {
+      // Check if user was logged out
       if (params['logout'] === 'true') {
         this.success = 'You have been successfully logged out';
+      }
+      
+      // Check if user just registered
+      if (params['registered'] === 'true') {
+        const username = params['username'] || '';
+        this.success = 'Registration successful! Please log in with your credentials.';
+        
+        // Pre-fill the username field if available
+        if (username) {
+          this.loginForm.patchValue({ username });
+        }
       }
     });
 
@@ -42,14 +55,27 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;
+      console.log('Attempting login for user:', username);
+      
+      this.loading = true;
+      this.error = '';
+      
       this.authService.login(username, password).subscribe({
         next: (response) => {
           console.log('Login successful:', response);
           this.router.navigate(['/dashboard']);
         },
         error: (error) => {
-          console.error('Login failed:', error);
-          this.error = 'Invalid username or password';
+          console.error('Login failed details:', error);
+          this.error = error.error || 'Invalid username or password';
+          this.loading = false;
+          
+          // Additional debugging info
+          if (error.status === 0) {
+            this.error = 'Server connection error. Please check if the backend is running.';
+          } else if (error.status === 401 || error.status === 403) {
+            this.error = 'Authentication failed. Please check your credentials.';
+          }
         }
       });
     }

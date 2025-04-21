@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class AuthManager implements AuthService {
@@ -42,7 +44,7 @@ public class AuthManager implements AuthService {
         if (auth.getAccount() == null) {
             Account newAccount = new Account();
             newAccount.setAccountHolderName(auth.getUsername());
-            newAccount.setBalance(0.0);
+            newAccount.setBalance(5000.0);
             auth.setAccount(accountService.createAccount(newAccount, this.getClass().getName()));
         }
 
@@ -57,17 +59,76 @@ public class AuthManager implements AuthService {
         // Save the auth entity
         Auth savedAuth = authRepository.save(auth);
 
-        // Send welcome notification
-        String welcomeMessage = String.format(
-            "Welcome %s! Your bank account has been created successfully. Account ID: %d",
+        // Current date and time for the notification
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        // Send detailed welcome notification to the user
+        String userWelcomeMessage = String.format(
+            "Welcome %s!\n\n" +
+            "Your bank account has been successfully created on %s.\n\n" +
+            "Account Details:\n" +
+            "- Account ID: %d\n" +
+            "- Account Holder: %s\n" +
+            "- Initial Balance: $%.2f\n\n" +
+            "You can now log in to access your account, make transactions, and manage your finances.\n\n" +
+            "If you have any questions or need assistance, please contact our customer support team.\n\n" +
+            "Thank you for choosing our bank!",
             auth.getUsername(),
-            auth.getAccount().getId()
+            formattedDateTime,
+            auth.getAccount().getId(),
+            auth.getAccount().getAccountHolderName(),
+            auth.getAccount().getBalance()
         );
         
         notificationService.sendNotification(
+            auth.getUsername(),
+            "Welcome to Secure Bank - Your Account is Ready!",
+            userWelcomeMessage
+        );
+        
+        // Security tips notification
+        String securityTips = String.format(
+            "Security Tips for Your New Account\n\n" +
+            "Dear %s,\n\n" +
+            "Congratulations on your new account with a $5,000.00 initial balance!\n\n" +
+            "Here are some security tips to help protect your account:\n\n" +
+            "1. Never share your password with anyone\n" +
+            "2. Use a strong, unique password\n" +
+            "3. Enable two-factor authentication when available\n" +
+            "4. Be cautious of phishing attempts\n" +
+            "5. Regularly check your account for unauthorized transactions\n\n" +
+            "Stay safe online!\n" +
+            "The Secure Bank Security Team",
+            auth.getUsername()
+        );
+        
+        notificationService.sendNotification(
+            auth.getUsername(),
+            "Important Security Information",
+            securityTips
+        );
+        
+        // Also send a notification to system admin about the new user
+        String adminNotificationMessage = String.format(
+            "New user registration alert!\n\n" +
+            "User Details:\n" +
+            "- Username: %s\n" +
+            "- Email: %s\n" +
+            "- Account ID: %d\n" +
+            "- Registration Time: %s\n\n" +
+            "A new account has been created in the system.",
+            auth.getUsername(),
             auth.getEmail(),
-            "Welcome to Our Bank",
-            welcomeMessage
+            auth.getAccount().getId(),
+            formattedDateTime
+        );
+        
+        notificationService.sendNotification(
+            "admin@securebank.com", // Admin email
+            "New User Registration Alert",
+            adminNotificationMessage
         );
 
         return savedAuth;

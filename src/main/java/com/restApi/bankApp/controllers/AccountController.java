@@ -73,4 +73,22 @@ public class AccountController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PutMapping("/update-all-balances")
+    public ResponseEntity<?> updateAllBalancesTo5000() {
+        try {
+            // Verify that the user is an admin
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+            
+            if (!"ADMIN".equals(username)) {
+                return ResponseEntity.status(403).body("Access denied. Only admins can update all balances.");
+            }
+            
+            int updatedCount = accountService.updateAllBalancesTo5000();
+            return ResponseEntity.ok("Updated " + updatedCount + " accounts to have a balance of $5,000.00");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to update account balances: " + e.getMessage());
+        }
+    }
 } 

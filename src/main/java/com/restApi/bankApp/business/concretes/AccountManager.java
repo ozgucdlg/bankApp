@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -75,5 +76,20 @@ class AccountManager implements AccountService {  // Package-private class
         
         account.setBalance(account.getBalance() - amount);
         return accountRepository.save(account);
+    }
+    
+    @Override
+    @Transactional
+    public int updateAllBalancesTo5000() {
+        // Fetch all accounts with balance less than 5000
+        List<Account> accountsToUpdate = accountRepository.findByBalanceLessThan(5000.0);
+        
+        // Update each account's balance to 5000
+        for (Account account : accountsToUpdate) {
+            account.setBalance(5000.0);
+            accountRepository.save(account);
+        }
+        
+        return accountsToUpdate.size();
     }
 }

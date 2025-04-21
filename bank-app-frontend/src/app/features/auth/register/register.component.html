@@ -57,8 +57,10 @@
         {{ error }}
       </div>
 
-      <button type="submit" [disabled]="registerForm.invalid" class="btn btn-primary">
-        Register
+      <button type="submit" [disabled]="registerForm.invalid || loading" class="btn btn-primary">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin me-2"></i>
+        <span *ngIf="!loading">Register</span>
+        <span *ngIf="loading">Registering...</span>
       </button>
 
       <div class="login-link">

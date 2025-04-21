@@ -3,7 +3,8 @@ export interface Notification {
     recipient: string;
     subject: string;
     content: string;
-    notificationType: 'EMAIL' | 'CONSOLE';
+    notificationType?: 'EMAIL' | 'CONSOLE';
     sentAt: string;
     status: 'PENDING' | 'SENT' | 'FAILED';
+    read?: boolean;
 } 

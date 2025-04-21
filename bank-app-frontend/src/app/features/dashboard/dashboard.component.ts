@@ -1,12 +1,14 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountService } from '../../core/services/account.service';
 import { TransactionService } from '../../core/services/transaction.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Account } from '../../shared/models/account.model';
 import { Transaction } from '../../shared/models/transaction.model';
 import { User } from '../../shared/models/user.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,7 +16,7 @@ import { User } from '../../shared/models/user.model';
   styleUrls: ['./dashboard.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   account: Account | null = null;
   recentTransactions: Transaction[] = [];
   filteredTransactions: Transaction[] = [];
@@ -23,11 +25,14 @@ export class DashboardComponent implements OnInit {
   success: string = '';
   loading: boolean = true;
   transactionFilter: 'all' | 'incoming' | 'outgoing' = 'all';
+  unreadNotifications: number = 0;
+  private subscription: Subscription = new Subscription();
 
   constructor(
     private authService: AuthService,
     private accountService: AccountService,
     private transactionService: TransactionService,
+    private notificationService: NotificationService,
     private formBuilder: FormBuilder,
     private router: Router
   ) {
@@ -41,6 +46,36 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadAccountData();
     this.loadRecentTransactions();
+    
+    // Force immediate notification check and set up polling
+    setTimeout(() => {
+      this.loadNotificationCount();
+      
+      // Set up periodic refresh every 10 seconds
+      setInterval(() => {
+        this.loadNotificationCount();
+      }, 10000);
+    }, 1000);
+  }
+  
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  loadNotificationCount(): void {
+    const user = this.authService.currentUserValue;
+    if (user) {
+      console.log('Loading notifications for user:', user.username);
+      this.notificationService.refreshNotifications();
+      
+      // Subscribe to notification updates - use unread count
+      this.subscription.add(
+        this.notificationService.getUnreadNotificationsCount().subscribe(count => {
+          console.log('Unread notifications count:', count);
+          this.unreadNotifications = count;
+        })
+      );
+    }
   }
 
   logout(): void {
@@ -58,22 +93,8 @@ export class DashboardComponent implements OnInit {
       // Show loading state
       this.loading = true;
       
-      // Add a console log to track execution
-      console.log('Dashboard: Calling AuthService.logout()');
-      
-      // Call logout with some basic error handling
-      try {
-        this.authService.logout();
-        console.log('Dashboard: AuthService.logout() called successfully');
-      } catch (error) {
-        console.error('Dashboard: Error calling AuthService.logout():', error);
-        // Re-enable the button if there's an error
-        if (logoutBtn) {
-          logoutBtn.disabled = false;
-          logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt me-2"></i>Logout';
-        }
-        this.loading = false;
-      }
+      // Call the auth service logout method
+      this.authService.logout();
     }
   }
 

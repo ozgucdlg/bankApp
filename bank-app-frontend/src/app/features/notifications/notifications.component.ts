@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 import { NotificationService } from '../../core/services/notification.service';
 import { Notification } from '../../shared/models/notification.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-notifications',
@@ -10,46 +11,59 @@ import { Notification } from '../../shared/models/notification.model';
 })
 export class NotificationsComponent implements OnInit, OnDestroy {
   notifications: Notification[] = [];
-  private subscription: Subscription;
+  private subscription: Subscription = new Subscription();
 
-  constructor(public notificationService: NotificationService) {
-    this.subscription = new Subscription();
+  constructor(
+    private notificationService: NotificationService,
+    private router: Router
+  ) { }
+
+  ngOnInit(): void {
+    this.loadNotifications();
   }
 
-  ngOnInit() {
-    // Subscribe to notifications
-    this.subscription.add(
-      this.notificationService.getNotifications().subscribe(
-        notifications => this.notifications = notifications.sort((a, b) => 
-          new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
-        )
-      )
-    );
-
-    // Start polling for new notifications
-    this.notificationService.startPolling();
-  }
-
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscription.unsubscribe();
+  }
+
+  loadNotifications(): void {
+    this.subscription.add(
+      this.notificationService.getNotifications().subscribe(notifications => {
+        this.notifications = notifications;
+      })
+    );
   }
 
   refreshNotifications(): void {
     this.notificationService.refreshNotifications();
   }
 
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'SENT':
-        return 'text-success';
-      case 'FAILED':
-        return 'text-danger';
-      default:
-        return 'text-warning';
+  markAllAsRead(): void {
+    this.notificationService.markAllAsRead().subscribe(() => {
+      this.loadNotifications();
+    });
+  }
+
+  deleteNotification(id: number): void {
+    if (confirm('Are you sure you want to delete this notification?')) {
+      this.notificationService.deleteNotification(id).subscribe(() => {
+        this.loadNotifications();
+      });
     }
   }
 
-  formatDate(date: string): string {
-    return new Date(date).toLocaleString();
+  formatDate(date: string | null | undefined): string {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  goBackToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 } 

@@ -11,6 +11,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   error: string = '';
+  loading: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,25 +34,29 @@ export class RegisterComponent implements OnInit {
 
   onSubmit(): void {
     if (this.registerForm.valid) {
+      console.log('Submitting registration form:', this.registerForm.value);
+      this.error = '';
+      this.loading = true;
+      
       this.authService.register(this.registerForm.value).subscribe({
-        next: () => {
-          // After successful registration, log the user in
-          const { username, password } = this.registerForm.value;
-          this.authService.login(username, password).subscribe({
-            next: () => {
-              this.router.navigate(['/']);
-            },
-            error: (error) => {
-              this.error = 'Login failed after registration';
-              console.error('Login error:', error);
+        next: (response) => {
+          console.log('Registration successful:', response);
+          // Success message and redirect to login page
+          this.router.navigate(['/login'], { 
+            queryParams: { 
+              registered: 'true',
+              username: this.registerForm.value.username 
             }
           });
         },
         error: (error) => {
-          this.error = error.error || 'Registration failed';
           console.error('Registration error:', error);
+          this.error = error.error || 'Registration failed. Please try again.';
+          this.loading = false;
         }
       });
+    } else {
+      this.error = 'Please correct the form errors.';
     }
   }
 }

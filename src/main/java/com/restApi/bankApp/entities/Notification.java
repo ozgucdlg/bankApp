@@ -27,6 +27,9 @@ public class Notification {
 
     @Column(name = "status")
     private String status; // PENDING, SENT, FAILED
+    
+    @Column(name = "is_read", nullable = true)
+    private Boolean read = false;
 
     // Getters and Setters
     public Long getId() {
@@ -83,5 +86,14 @@ public class Notification {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    public Boolean getRead() {
+        // Ensure we never return null for read status
+        return read != null ? read : false;
+    }
+
+    public void setRead(Boolean read) {
+        this.read = read != null ? read : false;
     }
 } 

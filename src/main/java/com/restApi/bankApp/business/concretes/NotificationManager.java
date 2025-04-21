@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationManager implements NotificationService {
@@ -85,5 +86,40 @@ public class NotificationManager implements NotificationService {
             notification.setContent(notification.getContent() + "\nError: " + errorMessage);
             notificationRepository.save(notification);
         });
+    }
+
+    @Override
+    public void markNotificationAsRead(Long notificationId) {
+        notificationRepository.findById(notificationId).ifPresent(notification -> {
+            notification.setRead(true);
+            notificationRepository.save(notification);
+        });
+    }
+
+    @Override
+    public void markAllNotificationsAsRead(String recipient) {
+        List<Notification> notifications = notificationRepository.findByRecipient(recipient);
+        for (Notification notification : notifications) {
+            notification.setRead(true);
+            notificationRepository.save(notification);
+        }
+    }
+
+    @Override
+    public List<Notification> getUnreadNotifications(String recipient) {
+        List<Notification> notifications = notificationRepository.findByRecipient(recipient);
+        return notifications.stream()
+                .filter(notification -> notification.getRead() == null || !notification.getRead())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Notification> getNotificationsByRecipientAndStatus(String recipient, String status) {
+        return notificationRepository.findByRecipientAndStatus(recipient, status);
+    }
+
+    @Override
+    public List<Notification> getNotificationsByStatus(String status) {
+        return notificationRepository.findByStatus(status);
     }
 } 

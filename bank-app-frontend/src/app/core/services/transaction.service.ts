@@ -11,7 +11,7 @@ export class TransactionService {
   constructor(private http: HttpClient) {}
 
   getRecentTransactions(accountId: number): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(`${environment.apiUrl}/transactions/account/${accountId}`);
+    return this.http.get<Transaction[]>(`${environment.apiUrl}/api/transactions/account/${accountId}`);
   }
 
   createTransaction(transaction: {
@@ -20,10 +20,10 @@ export class TransactionService {
     amount: number;
     description: string;
   }): Observable<Transaction> {
-    return this.http.post<Transaction>(`${environment.apiUrl}/transactions/transfer`, transaction);
+    return this.http.post<Transaction>(`${environment.apiUrl}/api/transactions/transfer`, transaction);
   }
 
   getTransactionDetails(transactionId: number): Observable<Transaction> {
-    return this.http.get<Transaction>(`${environment.apiUrl}/transactions/${transactionId}`);
+    return this.http.get<Transaction>(`${environment.apiUrl}/api/transactions/${transactionId}`);
   }
 } 

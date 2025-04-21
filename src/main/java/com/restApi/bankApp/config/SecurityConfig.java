@@ -16,6 +16,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.restApi.bankApp.business.abstracts.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.Customizer;
+import org.springframework.web.filter.OncePerRequestFilter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 
 @Configuration
@@ -54,6 +60,17 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
+    
+    // Custom request logging filter
+    public class RequestLoggingFilter extends OncePerRequestFilter {
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+                throws ServletException, IOException {
+            System.out.println("Request URI: " + request.getRequestURI());
+            System.out.println("Request Method: " + request.getMethod());
+            filterChain.doFilter(request, response);
+        }
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -62,9 +79,11 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
+                .requestMatchers("/api/notifications/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .httpBasic(Customizer.withDefaults());
+            .httpBasic(Customizer.withDefaults())
+            .addFilterBefore(new RequestLoggingFilter(), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }

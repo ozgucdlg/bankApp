@@ -17,8 +17,10 @@ export class AuthService {
     private http: HttpClient,
     private router: Router
   ) {
+    // Initialize from localStorage
+    const storedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<User | null>(
-      JSON.parse(localStorage.getItem('currentUser') || 'null')
+      storedUser ? JSON.parse(storedUser) : null
     );
     this.currentUser = this.currentUserSubject.asObservable();
   }
@@ -28,7 +30,7 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<User> {
-    return this.http.post<any>(`${environment.apiUrl}/auth/login`, { username, password })
+    return this.http.post<any>(`${environment.apiUrl}/api/auth/login`, { username, password })
       .pipe(map(response => {
         // Create the user object from the response
         const user: User = {
@@ -48,43 +50,25 @@ export class AuthService {
   }
 
   register(user: Partial<User>): Observable<User> {
-    return this.http.post<User>(`${environment.apiUrl}/auth/register`, user);
+    return this.http.post<User>(`${environment.apiUrl}/api/auth/register`, user);
   }
 
   logout(): void {
-    console.log('Starting logout process');
-    
     // Clear all storage first
-    localStorage.clear();
-    sessionStorage.clear();
+    localStorage.removeItem('currentUser');
     
     // Clear current user
     this.currentUserSubject.next(null);
     
-    // Make the API call to logout - using absolute URL to avoid any path issues
-    const logoutUrl = `${environment.apiUrl}/auth/logout`;
-    console.log('Attempting to call logout endpoint:', logoutUrl);
-    
-    fetch(logoutUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    .then(response => {
-      console.log('Logout API response:', response.status, response.statusText);
-      return response.text();
-    })
-    .then(data => {
-      console.log('Logout API data:', data);
-      // Force a full page reload and navigation
-      window.location.href = '/login';
-    })
-    .catch(error => {
-      console.error('Error during logout:', error);
-      // Force a full page reload and navigation even if API call fails
-      window.location.href = '/login';
-    });
+    // Make the API call to logout
+    this.http.post(`${environment.apiUrl}/api/auth/logout`, {})
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/login']);
+        },
+        error: () => {
+          this.router.navigate(['/login']);
+        }
+      });
   }
 } 

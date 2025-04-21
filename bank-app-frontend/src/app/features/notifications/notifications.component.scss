@@ -1,22 +1,61 @@
 .notifications-container {
-  padding: 1rem;
+  padding: 20px;
+}
+
+.back-button-container {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.back-button-container .btn {
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.back-button-container .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .notification-list {
-  max-height: 400px;
+  max-height: 600px;
   overflow-y: auto;
 }
 
 .notification-item {
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+}
 
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.02);
-  }
+.notification-item:hover {
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+}
 
-  &:last-child {
-    border-bottom: none !important;
-  }
+.notification-content {
+  width: 100%;
+}
+
+.notification-message {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.notification-pre {
+  font-family: inherit;
+  white-space: pre-wrap;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: 0.9rem;
+  color: #212529;
+  line-height: 1.5;
+}
+
+.notification-footer {
+  width: 100%;
 }
 
 .card-header {
@@ -27,4 +66,19 @@
       background-color: rgba(255, 255, 255, 0.9);
     }
   }
+}
+
+button {
+  i {
+    margin-right: 0;
+  }
+}
+
+.nav-link {
+  cursor: pointer;
+}
+
+/* Add a subtle color indication for unread notifications */
+.border-primary {
+  border-left: 4px solid var(--bs-primary) !important;
 } 

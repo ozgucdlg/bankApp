@@ -1,6 +1,7 @@
 package com.restApi.bankApp.controllers;
 
 import com.restApi.bankApp.business.abstracts.AuthService;
+import com.restApi.bankApp.business.abstracts.NotificationService;
 import com.restApi.bankApp.entities.Auth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,9 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @GetMapping("/users")
     public ResponseEntity<?> getAllUsers() {
         List<Auth> users = authService.getAllUsers();
@@ -30,6 +34,40 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody Auth auth) {
         try {
             Auth registeredAuth = authService.register(auth);
+            
+            // Manually trigger a notification creation
+            System.out.println("Creating welcome notification for new user: " + auth.getUsername());
+            try {
+                // Send notification using username as recipient (not email) so it shows up properly
+                notificationService.sendNotification(
+                    auth.getUsername(), // Use username instead of email
+                    "Welcome to Secure Bank", 
+                    "Welcome " + auth.getUsername() + "! Your account has been created successfully.\n\n" +
+                    "Your account details:\n" +
+                    "- Username: " + auth.getUsername() + "\n" +
+                    "- Account ID: " + auth.getAccount().getId() + "\n" +
+                    "- Initial Balance: $5,000.00\n\n" +
+                    "Thank you for choosing our bank!"
+                );
+                
+                // Also create a notification about funding their account
+                notificationService.sendNotification(
+                    auth.getUsername(),
+                    "Fund Your Account",
+                    "Dear " + auth.getUsername() + ",\n\n" +
+                    "Your new account is ready to use. You can now fund your account by:\n\n" +
+                    "1. Bank transfer from another account\n" +
+                    "2. Deposit funds at a branch location\n" +
+                    "3. Set up direct deposit\n\n" +
+                    "Need help? Contact our support team at support@securebank.com."
+                );
+                
+                System.out.println("Welcome notifications created successfully");
+            } catch (Exception e) {
+                System.out.println("Failed to create welcome notification: " + e.getMessage());
+                e.printStackTrace();
+            }
+            
             return ResponseEntity.ok(registeredAuth);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
