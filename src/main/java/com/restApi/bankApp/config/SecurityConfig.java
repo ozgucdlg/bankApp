@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -80,6 +81,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
                 .requestMatchers("/api/notifications/**").permitAll()
+                .requestMatchers("/api/health").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(Customizer.withDefaults())
@@ -91,10 +93,17 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
+        // Allow all origins for testing - we'll restrict this in production
+        configuration.setAllowedOrigins(Collections.singletonList("*"));
+        // Allow specific origins if needed
+        /*configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:4200",
-            "http://127.0.0.1:4200"
-        ));
+            "http://127.0.0.1:4200",
+            "http://localhost:80",
+            "http://localhost",
+            "http://frontend:80",
+            "http://frontend:4200"
+        ));*/
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList(
             "Origin",
@@ -110,7 +119,8 @@ public class SecurityConfig {
             "Access-Control-Allow-Origin",
             "Access-Control-Allow-Credentials"
         ));
-        configuration.setAllowCredentials(true);
+        // Setting allowCredentials to false when using "*" for allowed origins
+        configuration.setAllowCredentials(false);
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

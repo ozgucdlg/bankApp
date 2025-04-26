@@ -11,7 +11,7 @@
               </h1>
             </div>
             <div class="d-flex gap-2">
-              <button type="button" class="btn btn-primary" (click)="markAllAsRead()">
+              <button type="button" class="btn btn-primary" (click)="markAllAsRead()" *ngIf="(unreadNotifications$ | async)?.length">
                 <i class="fas fa-check-double me-2"></i>Mark All as Read
               </button>
               <button class="btn btn-outline-secondary" (click)="refreshNotifications()">
@@ -31,34 +31,87 @@
     <div class="col-12">
       <div class="card shadow-sm rounded-4">
         <div class="card-body p-4">
-          <!-- Notifications List -->
-          <div class="notification-list">
-            <div *ngFor="let notification of notifications" class="notification-item p-3 mb-3 border rounded-3">
-              <div class="d-flex justify-content-between">
-                <div>
-                  <div class="d-flex align-items-center">
-                    <h5 class="mb-0">{{ notification.subject }}</h5>
+          <!-- Loading indicator -->
+          <div *ngIf="loading$ | async" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading notifications...</p>
+          </div>
+
+          <!-- Error message -->
+          <div *ngIf="error$ | async as error" class="alert alert-danger">
+            {{ error }}
+          </div>
+
+          <ng-container *ngIf="!(loading$ | async) && !(error$ | async)">
+            <!-- Filter Tabs -->
+            <ul class="nav nav-tabs mb-4">
+              <li class="nav-item">
+                <a class="nav-link" [class.active]="(filter$ | async) === 'all'" (click)="setFilter('all')">
+                  All Notifications
+                  <span class="badge bg-primary ms-2">{{ (allNotifications$ | async)?.length || 0 }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" [class.active]="(filter$ | async) === 'unread'" (click)="setFilter('unread')">
+                  Unread
+                  <span class="badge bg-danger ms-2">{{ (unreadNotifications$ | async)?.length || 0 }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" [class.active]="(filter$ | async) === 'read'" (click)="setFilter('read')">
+                  Read
+                  <span class="badge bg-secondary ms-2">{{ (readNotifications$ | async)?.length || 0 }}</span>
+                </a>
+              </li>
+            </ul>
+
+            <!-- Notifications List -->
+            <div class="notification-list">
+              <div *ngFor="let notification of filteredNotifications$ | async" class="notification-item p-3 mb-3 border rounded-3"
+                  [ngClass]="{'border-primary': !notification.read}">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <div class="d-flex align-items-center">
+                      <h5 class="mb-0">
+                        {{ notification.subject }}
+                        <span *ngIf="!notification.read" class="badge bg-primary ms-2">New</span>
+                      </h5>
+                    </div>
+                    <div class="d-flex mt-1">
+                      <p class="text-muted small me-3">{{ formatDate(notification.sentAt) }}</p>
+                      <p class="text-muted small">Status: {{ notification.status }}</p>
+                    </div>
+                    <p class="mt-2 mb-0">{{ notification.content }}</p>
                   </div>
-                  <div class="d-flex mt-1">
-                    <p class="text-muted small me-3">{{ formatDate(notification.sentAt) }}</p>
-                    <p class="text-muted small">Status: {{ notification.status }}</p>
+                  <div class="d-flex flex-column" style="min-width: 100px;">
+                    <button *ngIf="!notification.read" class="btn btn-sm btn-outline-primary mb-2" (click)="markAsRead(notification.id)">
+                      <i class="fas fa-check me-1"></i> Mark as Read
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteNotification(notification.id)">
+                      <i class="fas fa-trash me-1"></i> Delete
+                    </button>
                   </div>
-                  <p class="mt-2 mb-0">{{ notification.content }}</p>
-                </div>
-                <div class="d-flex flex-column" style="min-width: 100px;">
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteNotification(notification.id)">
-                    <i class="fas fa-trash me-1"></i> Delete
-                  </button>
                 </div>
               </div>
-            </div>
 
-            <!-- Empty State -->
-            <div *ngIf="notifications.length === 0" class="text-center py-5">
-              <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
-              <p class="text-muted mb-0">No notifications found</p>
+              <!-- Empty State -->
+              <div *ngIf="(filteredNotifications$ | async)?.length === 0" class="text-center py-5">
+                <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                <p class="text-muted mb-0">No notifications found</p>
+                <p class="text-muted small mt-3">If you're seeing this message, it could be because:</p>
+                <ul class="text-start text-muted small mx-auto" style="max-width: 400px;">
+                  <li>You don't have any notifications yet</li>
+                  <li>You're not logged in (check console for authentication status)</li>
+                  <li>There's an issue connecting to the backend API</li>
+                </ul>
+                <button class="btn btn-sm btn-primary mt-3" (click)="refreshNotifications()">
+                  <i class="fas fa-sync-alt me-2"></i>Try Again
+                </button>
+              </div>
             </div>
-          </div>
+          </ng-container>
         </div>
       </div>
     </div>

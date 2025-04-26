@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Spring Boot Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bank-app-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Connect to host PostgreSQL (not Docker container)
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/bankApp
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true
+    networks:
+      - bank-network
+    restart: unless-stopped
+
+  # Angular Frontend
+  frontend:
+    build:
+      context: ./bank-app-frontend
+      dockerfile: Dockerfile
+    container_name: bank-app-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - bank-network
+    restart: unless-stopped
+
+networks:
+  bank-network:
+    driver: bridge 

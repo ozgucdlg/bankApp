@@ -27,6 +27,7 @@ public class NotificationManager implements NotificationService {
         notification.setRecipient(recipient);
         notification.setSubject(subject);
         notification.setContent(content);
+        notification.setMessage(content);
         notification.setSentAt(LocalDateTime.now());
         notification.setStatus("PENDING");
 
@@ -83,7 +84,9 @@ public class NotificationManager implements NotificationService {
     public void markNotificationAsFailed(Long notificationId, String errorMessage) {
         notificationRepository.findById(notificationId).ifPresent(notification -> {
             notification.setStatus("FAILED");
-            notification.setContent(notification.getContent() + "\nError: " + errorMessage);
+            String updatedContent = notification.getContent() + "\nError: " + errorMessage;
+            notification.setContent(updatedContent);
+            notification.setMessage(updatedContent);
             notificationRepository.save(notification);
         });
     }
@@ -121,5 +124,10 @@ public class NotificationManager implements NotificationService {
     @Override
     public List<Notification> getNotificationsByStatus(String status) {
         return notificationRepository.findByStatus(status);
+    }
+
+    @Override
+    public void deleteNotification(Long notificationId) {
+        notificationRepository.deleteById(notificationId);
     }
 } 

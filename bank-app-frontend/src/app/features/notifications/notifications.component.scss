@@ -27,10 +27,14 @@
 
 .notification-item {
   transition: all 0.2s ease;
-}
-
-.notification-item:hover {
-  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  &.border-primary {
+    border-left-width: 4px !important;
+  }
 }
 
 .notification-content {
@@ -78,7 +82,35 @@ button {
   cursor: pointer;
 }
 
+.nav-tabs {
+  .nav-link {
+    cursor: pointer;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+}
+
 /* Add a subtle color indication for unread notifications */
 .border-primary {
   border-left: 4px solid var(--bs-primary) !important;
+}
+
+/* Fix for form-floating selector errors */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+  opacity: 0.65;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+/* Fix for legend selector error */
+legend {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+legend + * {
+  clear: left;
 } 

@@ -18,6 +18,10 @@ public class Notification {
 
     @Column(nullable = false, length = 1000)
     private String content;
+    
+    // Added for database compatibility
+    @Column(nullable = false, length = 1000)
+    private String message;
 
     @Column(name = "notification_type")
     private String notificationType; // EMAIL, CONSOLE, etc.
@@ -62,6 +66,16 @@ public class Notification {
 
     public void setContent(String content) {
         this.content = content;
+        this.message = content; // Sync the message field
+    }
+    
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+        this.content = message; // Sync the content field
     }
 
     public String getNotificationType() {

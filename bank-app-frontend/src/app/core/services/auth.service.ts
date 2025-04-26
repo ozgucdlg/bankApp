@@ -19,6 +19,8 @@ export class AuthService {
   ) {
     // Initialize from localStorage
     const storedUser = localStorage.getItem('currentUser');
+    console.log('AuthService - stored user:', storedUser);
+    
     this.currentUserSubject = new BehaviorSubject<User | null>(
       storedUser ? JSON.parse(storedUser) : null
     );
@@ -26,7 +28,9 @@ export class AuthService {
   }
 
   public get currentUserValue(): User | null {
-    return this.currentUserSubject.value;
+    const user = this.currentUserSubject.value;
+    console.log('AuthService.currentUserValue called, returning:', user);
+    return user;
   }
 
   login(username: string, password: string): Observable<User> {
