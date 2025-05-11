@@ -4,10 +4,9 @@ import com.restApi.bankApp.business.abstracts.TransactionService;
 import com.restApi.bankApp.business.abstracts.AccountService;
 import com.restApi.bankApp.entities.Transaction;
 import com.restApi.bankApp.entities.Account;
+import com.restApi.bankApp.security.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +21,13 @@ public class TransactionController {
 
     @Autowired
     private AccountService accountService;
+    
+    @Autowired
+    private SecurityUtils securityUtils;
 
     @PostMapping("/transfer")
     public ResponseEntity<?> transferMoney(@RequestBody Map<String, Object> request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        String username = securityUtils.getCurrentUsername();
 
         int fromAccountId = (Integer) request.get("fromAccountId");
         
@@ -53,8 +54,7 @@ public class TransactionController {
 
     @GetMapping("/account/{accountId}")
     public ResponseEntity<?> getAccountTransactions(@PathVariable int accountId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        String username = securityUtils.getCurrentUsername();
 
         // Verify account ownership
         Account account = accountService.getAccount(accountId)
@@ -70,8 +70,7 @@ public class TransactionController {
 
     @GetMapping("/{transactionId}")
     public ResponseEntity<?> getTransaction(@PathVariable Long transactionId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        String username = securityUtils.getCurrentUsername();
 
         try {
             Transaction transaction = transactionService.getTransactionById(transactionId);
