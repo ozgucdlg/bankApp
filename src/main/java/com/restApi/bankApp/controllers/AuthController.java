@@ -5,7 +5,6 @@ import com.restApi.bankApp.business.abstracts.NotificationService;
 import com.restApi.bankApp.entities.Auth;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
